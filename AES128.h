@@ -8,12 +8,14 @@ class AES128
 {
 private:
     std::string secret;
-    KeySchedule* key;
+    KeySchedule *key;
     std::string substitution_box[16][16];
 
 public:
     AES128(std::string secret_, std::string key_);
     void show_key(int round);
+
+    ~AES128();
 };
 
 #endif
