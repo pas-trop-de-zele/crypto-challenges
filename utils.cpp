@@ -3,49 +3,54 @@
 #include <fstream>
 #include <sstream>
 
-unsigned int count_set_bit(int x)
-{
-    unsigned int count = 0;
-    while (x)
-    {
-        count += (x & 1);
-        x >>= 1;
-    }
-    return count;
-}
-
-unsigned int hamming_distance(std::string A, std::string B)
-{
-    if (A.size() != B.size())
-    {
-        std::cout << "String sizes are different"
-                  << "\n";
-        exit(1);
-    }
-
-    unsigned int distance = 0;
-    for (int i = 0; i < A.size(); i++)
-    {
-        distance += count_set_bit(A[i] ^ B[i]);
-    }
-
-    return distance;
-}
-
-unsigned int ascii_to_hex(char a)
+unsigned char ascii_to_hex(unsigned char a)
 {
     a = toupper(a);
     a = (a < 58) ? a - 48 : a - 55;
     return a;
 }
 
-unsigned int hex_to_ascii(char a)
+unsigned char hex_to_ascii(unsigned char a)
 {
     a = (a < 10) ? a + 48 : a + 55;
     return a;
 }
 
-unsigned int base_64_to_ascii(char a)
+unsigned char ascii_to_base64(unsigned char a)
+{
+    if (a == 43)
+    {
+        return 62;
+    }
+    else if (a == 47)
+    {
+        return 63;
+    }
+    if (48 <= a && a < 58)
+    {
+        return a + 4;
+    }
+    else if (65 <= a && a < 91)
+    {
+        return a - 65;
+    }
+    else if (97 <= a && a < 123)
+    {
+        return a - 71;
+    }
+    // Replace '=' with 0 padding as ad hoc solution
+    else if (a == '=')
+    {
+        return 48;
+    }
+    else
+    {
+        printf("%s:%d: Invalid base64 char '%c'\n", __FILE__, __LINE__, a);
+        exit(-1);
+    }
+}
+
+unsigned char base_64_to_ascii(unsigned char a)
 {
     if (a < 26)
     {
@@ -69,7 +74,7 @@ unsigned int base_64_to_ascii(char a)
     }
 }
 
-std::string to_base_64(const std::string &str)
+std::string hex_to_base64(const std::string &str)
 {
     std::string base_64;
     int start = 0;
@@ -130,6 +135,28 @@ std::string xor_hex_against_mono_char_string(const std::string &a_hex, char lett
     return res;
 }
 
+std::string xor_ascii_against_mono_char_string(const std::string &ascii_str, char c)
+{
+    std::string res;
+    for (int i = 0; i < ascii_str.size(); ++i)
+    {
+        res += (unsigned char)(ascii_str[i] ^ c);
+    }
+    return res;
+}
+
+std::string xor_ascii_against_repeating_key(const std::string &ascii_str, const std::string &key)
+{
+    std::string res;
+    int i = 0;
+    for (auto ch : ascii_str)
+    {
+        res += (unsigned char)(ch ^ key[i]);
+        i = (i + 1) % key.size();
+    }
+    return res;
+}
+
 std::string hex_encode(const std::string &message, const std::string &key)
 {
     int i = 0;
@@ -145,4 +172,33 @@ std::string hex_encode(const std::string &message, const std::string &key)
         i = (i + 1) % key.size();
     }
     return ss.str();
+}
+
+unsigned int count_set_bit(int x)
+{
+    unsigned int count = 0;
+    while (x)
+    {
+        ++count;
+        x &= (x - 1);
+    }
+    return count;
+}
+
+unsigned int hamming_distance(const std::string &A, const std::string &B)
+{
+    if (A.size() != B.size())
+    {
+        std::cout << "String sizes are different"
+                  << "\n";
+        exit(1);
+    }
+
+    unsigned int distance = 0;
+    for (int i = 0; i < A.size(); i++)
+    {
+        distance += count_set_bit(A[i] ^ B[i]);
+    }
+
+    return distance;
 }
