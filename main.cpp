@@ -1,8 +1,6 @@
-#include <iostream>
-
-#include "utils.h"
+#include "Q7.h"
 
 int main()
 {
-    std::cout << hamming_distance("this is a test", "wokka wokka!!!");
+    Q7();
 }

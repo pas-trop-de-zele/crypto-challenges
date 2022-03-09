@@ -68,7 +68,7 @@ unsigned char base_64_to_ascii(unsigned char a)
     {
         return 43;
     }
-    else if (a == 63)
+    else
     {
         return 47;
     }
