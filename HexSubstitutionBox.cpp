@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "HexSubstitutionBox.h"
 
-std::string HexSubstitutionBox::get(unsigned char row, unsigned char col);
+int HexSubstitutionBox::get(int row, int col)
 {
-    return lookup[ascii_to_hex][];
+    return lookup[row][col];
 }
