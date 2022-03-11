@@ -1,9 +1,10 @@
 #include <string>
 
-#include "utils.h"
 #include "HexSubstitutionBox.h"
 
-int HexSubstitutionBox::get(int row, int col)
+int HexSubstitutionBox::sub(int val)
 {
+    int row = val >> 4;
+    int col = val & 15;
     return lookup[row][col];
 }
