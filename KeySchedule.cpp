@@ -2,13 +2,14 @@
 #include <iostream>
 
 #include "KeySchedule.h"
+#include "KeyBlock.h"
 #include "HexSubstitutionBox.h"
 
 KeySchedule::KeySchedule(std::string key_)
 {
     for (int i = 0; i < 11; ++i)
     {
-        keys.push_back(new Block());
+        keys.push_back(new KeyBlock());
     }
     sbox = new HexSubstitutionBox();
 
@@ -22,16 +23,17 @@ KeySchedule::KeySchedule(std::string key_)
             keys[FIRST_BLOCK]->set(row, col, key_[i++]);
         }
     }
+    generate_key_rounds();
 }
 
 void KeySchedule::generate_key_rounds()
 {
     for (int round = 1; round <= 10; ++round)
     {
-        Block *prev_block = keys[round - 1];
-        Block *curr_block = keys[round];
+        KeyBlock *prev_block = keys[round - 1];
+        KeyBlock *curr_block = keys[round];
 
-        Block::copy_col(prev_block, 3, curr_block, 0);
+        KeyBlock::copy_col(prev_block, 3, curr_block, 0);
 
         curr_block->sub_bytes_col(0);
         curr_block->rotate_col(0, 1);
@@ -39,16 +41,16 @@ void KeySchedule::generate_key_rounds()
         // XOR first cell of block with rcon
         curr_block->set(0, 0, curr_block->get(0, 0) ^ rcon[round]);
 
-        Block::xor_col(prev_block, 0, curr_block, 0, curr_block, 0);
-        Block::xor_col(prev_block, 1, curr_block, 0, curr_block, 1);
-        Block::xor_col(prev_block, 2, curr_block, 1, curr_block, 2);
-        Block::xor_col(prev_block, 3, curr_block, 2, curr_block, 3);
+        KeyBlock::xor_col(prev_block, 0, curr_block, 0, curr_block, 0);
+        KeyBlock::xor_col(prev_block, 1, curr_block, 0, curr_block, 1);
+        KeyBlock::xor_col(prev_block, 2, curr_block, 1, curr_block, 2);
+        KeyBlock::xor_col(prev_block, 3, curr_block, 2, curr_block, 3);
     }
 }
 
-void KeySchedule::key_round(int round)
+KeyBlock *KeySchedule::key_round(int round)
 {
-    std::cout << *keys[round];
+    return keys[round];
 }
 
 KeySchedule::~KeySchedule()
