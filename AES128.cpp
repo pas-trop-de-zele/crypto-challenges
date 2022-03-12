@@ -25,7 +25,7 @@ void AES128::encrypt()
         block->xor_block(key->key_round(0));
     }
 
-    for (int round = 1; round <= 1; ++round)
+    for (int round = 1; round <= 10; ++round)
     {
         for (auto block : secret_blocks)
         {
@@ -35,8 +35,12 @@ void AES128::encrypt()
             block->rotate_row(2, 2);
             block->rotate_row(3, 3);
 
-            block->mix_columns();
-            // block->xor_block(key->key_round(round));
+            // DONT MIX COLUMNS FOR LAST ROUND
+            if (round < 10)
+            {
+                block->mix_columns();
+            }
+            block->xor_block(key->key_round(round));
         }
     }
 }

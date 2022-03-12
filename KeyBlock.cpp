@@ -82,6 +82,7 @@ void KeyBlock::mix_columns()
             this->set(A_row, mult_col, val);
         }
     }
+    delete clone;
 }
 
 void KeyBlock::copy_col(Block *source, int source_col, Block *dest, int dest_col)
