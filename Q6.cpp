@@ -10,27 +10,7 @@
 
 void Q6()
 {
-    std::string input;
-    std::ifstream file("./q6_input.txt");
-    std::string line;
-
-    uint32_t mask = 255;
-    while (std::getline(file, line))
-    {
-        for (int i = 0; i < line.size(); i = i + 4)
-        {
-            uint32_t first = ascii_to_base64(line[i]) << 18;
-            uint32_t second = ascii_to_base64(line[i + 1]) << 12;
-            uint32_t third = ascii_to_base64(line[i + 2]) << 6;
-            uint32_t fourth = ascii_to_base64(line[i + 3]);
-            uint32_t combine = first | second | third | fourth;
-
-            input += combine >> 16;
-            input += (combine >> 8) & mask;
-            input += combine & mask;
-        }
-    }
-
+    std::string input = read_file_base64("./q6_input.txt");
     double smallest_normalized_distance = INT_MAX;
     int chosen_keysize = -1;
     for (int KEYSIZE = 2; KEYSIZE <= 40; ++KEYSIZE)
