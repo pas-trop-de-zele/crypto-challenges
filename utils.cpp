@@ -174,6 +174,31 @@ std::string hex_encode(const std::string &message, const std::string &key)
     return ss.str();
 }
 
+std::string read_file_base64(const std::string &file_name)
+{
+    std::string input;
+    std::ifstream file(file_name);
+    std::string line;
+
+    uint32_t mask = 255;
+    while (std::getline(file, line))
+    {
+        for (int i = 0; i < line.size(); i = i + 4)
+        {
+            uint32_t first = ascii_to_base64(line[i]) << 18;
+            uint32_t second = ascii_to_base64(line[i + 1]) << 12;
+            uint32_t third = ascii_to_base64(line[i + 2]) << 6;
+            uint32_t fourth = ascii_to_base64(line[i + 3]);
+            uint32_t combine = first | second | third | fourth;
+
+            input += combine >> 16;
+            input += (combine >> 8) & mask;
+            input += combine & mask;
+        }
+    }
+    return input;
+}
+
 unsigned int count_set_bit(int x)
 {
     unsigned int count = 0;
