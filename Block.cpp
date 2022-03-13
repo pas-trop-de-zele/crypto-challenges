@@ -30,7 +30,7 @@ std::ostream &operator<<(std::ostream &os, const Block &block)
     {
         for (int col = 0; col < 4; ++col)
         {
-            os << std::setw(2) << std::hex << block.get(row, col) << " ";
+            os << std::setw(2) << std::setfill('0') << std::hex << block.get(row, col) << " ";
         }
         os << "\n";
     }

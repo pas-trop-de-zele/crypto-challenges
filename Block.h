@@ -9,7 +9,7 @@ class Block
     friend std::ostream &operator<<(std::ostream &os, const Block &block);
 
 private:
-    int data[4][4] = {0};
+    unsigned char data[4][4] = {0};
 
 public:
     Block() = default;

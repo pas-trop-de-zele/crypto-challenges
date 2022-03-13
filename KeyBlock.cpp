@@ -45,7 +45,24 @@ void KeyBlock::sub_bytes_col(int col)
 {
     for (int row = 0; row < 4; ++row)
     {
-        int sub_value = HexSubstitutionBox::sub(this->get(row, col));
+        uint8_t sub_value = HexSubstitutionBox::sub(this->get(row, col));
+        this->set(row, col, sub_value);
+    }
+}
+
+void KeyBlock::sub_bytes_inverse_all()
+{
+    for (int col = 0; col < 4; ++col)
+    {
+        sub_bytes_inverse_col(col);
+    }
+}
+
+void KeyBlock::sub_bytes_inverse_col(int col)
+{
+    for (int row = 0; row < 4; ++row)
+    {
+        uint8_t sub_value = HexSubstitutionBox::sub_inverse(this->get(row, col));
         this->set(row, col, sub_value);
     }
 }
@@ -76,6 +93,27 @@ void KeyBlock::mix_columns()
             for (int A_col = 0; A_col < 4; ++A_col)
             {
                 int R_multiplier = RijndaelGaloisField::data[A_row][A_col];
+                val ^= RijndaelGaloisField::lookup_table[R_multiplier][clone->get(mult_row, mult_col)];
+                ++mult_row;
+            }
+            this->set(A_row, mult_col, val);
+        }
+    }
+    delete clone;
+}
+
+void KeyBlock::mix_columns_inverse()
+{
+    Block *clone = new Block(*this);
+    for (int A_row = 0; A_row < 4; ++A_row)
+    {
+        for (int mult_col = 0; mult_col < 4; ++mult_col)
+        {
+            int mult_row = 0;
+            int val = 0;
+            for (int A_col = 0; A_col < 4; ++A_col)
+            {
+                int R_multiplier = RijndaelGaloisField::data_inverse[A_row][A_col];
                 val ^= RijndaelGaloisField::lookup_table[R_multiplier][clone->get(mult_row, mult_col)];
                 ++mult_row;
             }
