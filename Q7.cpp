@@ -1,23 +1,15 @@
 #include <string>
 #include <iostream>
 
-#include "KeySchedule.h"
 #include "AES128.h"
-#include "Q7.h"
+#include "utils.h"
 
 void Q7()
 {
-    KeySchedule *key = new KeySchedule("Thats my Kung Fu");
-    std::cout << "Key in block\n";
-    key->key_round(0);
-
-    key->generate_key_rounds();
-
-    for (int round = 1; round <= 10; ++round)
-    {
-        std::cout << "\n";
-        key->key_round(round);
-    }
-
-    delete (key);
+    std::string input = read_file_base64("./q7_input.txt");
+    AES128 *cryptool = new AES128("YELLOW SUBMARINE");
+    cryptool->set_ciper_text(input);
+    cryptool->decrypt();
+    cryptool->show_decrypted_message();
+    delete (cryptool);
 }
