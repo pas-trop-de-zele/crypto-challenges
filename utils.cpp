@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <random>
 
 unsigned char ascii_to_hex(unsigned char a)
 {
@@ -14,6 +15,19 @@ unsigned char hex_to_ascii(unsigned char a)
 {
     a = (a < 10) ? a + 48 : a + 55;
     return a;
+}
+
+std::string hex_string_to_ascii(std::string hex_string)
+{
+    // NEED TO ENSURE EVEN SIZE
+    std::string res;
+    for (int i = 0; i < hex_string.size(); i += 2)
+    {
+        unsigned char first_hex = ascii_to_hex(hex_string[i]);
+        unsigned char second_hex = ascii_to_hex(hex_string[i + 1]);
+        res += (unsigned char)(first_hex << 4 | second_hex);
+    }
+    return res;
 }
 
 unsigned char ascii_to_base64(unsigned char a)
@@ -226,4 +240,19 @@ unsigned int hamming_distance(const std::string &A, const std::string &B)
     }
 
     return distance;
+}
+
+std::string get_rand_ascii(int count)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(128, 255);
+
+    std::string output;
+    for (int i = 0; i < count; ++i)
+    {
+        int val = distrib(gen);
+        output += val;
+    }
+    return output;
 }
