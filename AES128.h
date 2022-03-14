@@ -15,14 +15,20 @@ private:
     std::vector<KeyBlock *> decrypt_blocks;
     KeySchedule *key;
     std::string substitution_box[16][16];
+    KeyBlock *IV;
 
 public:
     AES128(std::string key_);
     void set_secret_message(std::string secret_message);
     void pad_pkcs(std::string &message);
+    void set_IV(std::vector<unsigned char> &IV_vals);
     void set_ciper_text(std::string ciper_text);
-    void encrypt();
-    void decrypt();
+    void encrypt(std::string encrypt_mode);
+    void encrypt_ecb();
+    void encrypt_cbc();
+    void decrypt(std::string decrypt_mode);
+    void decrypt_ecb();
+    void decrypt_cbc();
     void blockify(std::string secret, std::vector<KeyBlock *> &block_container);
     void show_encrypted_blocks();
     void show_decrypted_blocks();

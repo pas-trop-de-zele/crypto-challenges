@@ -26,12 +26,39 @@ void AES128::pad_pkcs(std::string &message)
     }
 }
 
+void AES128::set_IV(std::vector<unsigned char> &IV_vals)
+{
+    IV = new KeyBlock();
+    int i = 0;
+    for (int col = 0; col < 4; ++col)
+    {
+        for (int row = 0; row < 4; ++row)
+        {
+            IV->set(row, col, (unsigned char)IV_vals[i++]);
+        }
+    }
+}
+
 void AES128::set_ciper_text(std::string ciper_text)
 {
     blockify(ciper_text, decrypt_blocks);
 }
 
-void AES128::encrypt()
+void AES128::encrypt(std::string encrypt_mode)
+{
+    // Need to lower case all input
+    if (encrypt_mode == "ecb")
+    {
+        encrypt_ecb();
+    }
+    else if (encrypt_mode == "cbc")
+    {
+        encrypt_cbc();
+    }
+}
+
+// NEED TO MAKE SURE IV IS NOT NULLPTR
+void AES128::encrypt_ecb()
 {
     // ADD ROUND KEY FOR INITIAL ROUND
     for (auto block : encrypt_blocks)
@@ -59,7 +86,46 @@ void AES128::encrypt()
     }
 }
 
-void AES128::decrypt()
+void AES128::encrypt_cbc()
+{
+    for (int block_no = 0; block_no < encrypt_blocks.size(); ++block_no)
+    {
+        // For first block we xor with Initialization Vector
+        KeyBlock *prev_block = (block_no == 0) ? IV : encrypt_blocks[block_no - 1];
+        encrypt_blocks[block_no]->xor_block(prev_block);
+
+        encrypt_blocks[block_no]->xor_block(key->key_round(0));
+        for (int round = 1; round <= 10; ++round)
+        {
+            encrypt_blocks[block_no]->sub_bytes_all();
+
+            encrypt_blocks[block_no]->rotate_row(1, 1);
+            encrypt_blocks[block_no]->rotate_row(2, 2);
+            encrypt_blocks[block_no]->rotate_row(3, 3);
+
+            // DONT MIX COLUMNS FOR LAST ROUND
+            if (round < 10)
+            {
+                encrypt_blocks[block_no]->mix_columns();
+            }
+            encrypt_blocks[block_no]->xor_block(key->key_round(round));
+        }
+    }
+}
+
+void AES128::decrypt(std::string decrypt_mode)
+{
+    if (decrypt_mode == "ecb")
+    {
+        decrypt_ecb();
+    }
+    else if (decrypt_mode == "cbc")
+    {
+        decrypt_cbc();
+    }
+}
+
+void AES128::decrypt_ecb()
 {
     for (int round = 10; round >= 1; --round)
     {
@@ -85,6 +151,42 @@ void AES128::decrypt()
     for (auto block : decrypt_blocks)
     {
         block->xor_block(key->key_round(0));
+    }
+}
+
+void AES128::decrypt_cbc()
+{
+    // NEED TO ENSURE THERE IS ATLEAST A BLOCK
+    KeyBlock *prev_undecrypted_block = nullptr;
+
+    for (int block_no = 0; block_no < decrypt_blocks.size(); ++block_no)
+    {
+        KeyBlock *current_block_clone = new KeyBlock(*decrypt_blocks[block_no]);
+
+        for (int round = 10; round >= 1; --round)
+        {
+
+            decrypt_blocks[block_no]->xor_block(key->key_round(round));
+            // DONT MIX COLUMNS FOR LAST ROUND
+            if (round < 10)
+            {
+                decrypt_blocks[block_no]->mix_columns_inverse();
+            }
+
+            // ROTATE LEFT TO GET BACK TO BEFORE
+            decrypt_blocks[block_no]->rotate_row(1, 3);
+            decrypt_blocks[block_no]->rotate_row(2, 2);
+            decrypt_blocks[block_no]->rotate_row(3, 1);
+
+            decrypt_blocks[block_no]->sub_bytes_inverse_all();
+        }
+
+        // ADD ROUND KEY FOR INITIAL ROUND
+        decrypt_blocks[block_no]->xor_block(key->key_round(0));
+
+        decrypt_blocks[block_no]->xor_block(prev_undecrypted_block ? prev_undecrypted_block : IV);
+        delete prev_undecrypted_block;
+        prev_undecrypted_block = current_block_clone;
     }
 }
 
@@ -147,4 +249,5 @@ AES128::~AES128()
         delete block;
     }
     delete key;
+    delete IV;
 }
