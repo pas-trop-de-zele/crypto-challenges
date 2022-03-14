@@ -1,5 +1,8 @@
 #include <string>
 #include <iostream>
+#include <iomanip>
+#include <vector>
+#include <unordered_set>
 
 #include "AES128.h"
 #include "KeySchedule.h"
@@ -7,6 +10,7 @@
 AES128::AES128(std::string key_)
 {
     key = new KeySchedule(key_);
+    set_IV(std::vector<unsigned char>(16, 0));
 }
 
 void AES128::set_secret_message(std::string secret_message)
@@ -26,7 +30,7 @@ void AES128::pad_pkcs(std::string &message)
     }
 }
 
-void AES128::set_IV(std::vector<unsigned char> &IV_vals)
+void AES128::set_IV(const std::vector<unsigned char> &IV_vals)
 {
     IV = new KeyBlock();
     int i = 0;
@@ -216,6 +220,22 @@ void AES128::show_encrypted_blocks()
     }
 }
 
+std::string AES128::show_encrypted_message()
+{
+    std::stringstream ss;
+    for (auto block : encrypt_blocks)
+    {
+        for (int col = 0; col < 4; ++col)
+        {
+            for (int row = 0; row < 4; ++row)
+            {
+                ss << std::setw(2) << std::setfill('0') << std::hex << block->get(row, col);
+            }
+        }
+    }
+    return ss.str();
+}
+
 void AES128::show_decrypted_blocks()
 {
     for (auto block : decrypt_blocks)
@@ -224,18 +244,37 @@ void AES128::show_decrypted_blocks()
     }
 }
 
-void AES128::show_decrypted_message()
+std::string AES128::show_decrypted_message()
 {
+    std::stringstream ss;
     for (auto block : decrypt_blocks)
     {
         for (int col = 0; col < 4; ++col)
         {
             for (int row = 0; row < 4; ++row)
             {
-                std::cout << (char)block->get(row, col);
+                ss << std::hex << (char)block->get(row, col);
             }
         }
     }
+    return ss.str();
+}
+
+bool AES128::is_ECB_encrypted(std::string hex_encrypted_string)
+{
+    std::unordered_set<std::string> lookup;
+
+    // Input is in hex form we take 32 character per block (2 hex per ascii)
+    for (int i = 0; i < hex_encrypted_string.size(); i += 32)
+    {
+        std::string block = std::string(hex_encrypted_string.begin() + i, hex_encrypted_string.begin() + i + 32);
+        if (lookup.find(block) != lookup.end())
+        {
+            return true;
+        }
+        lookup.insert(std::move(block));
+    }
+    return false;
 }
 
 AES128::~AES128()

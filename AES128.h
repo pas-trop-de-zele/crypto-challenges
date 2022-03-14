@@ -21,7 +21,7 @@ public:
     AES128(std::string key_);
     void set_secret_message(std::string secret_message);
     void pad_pkcs(std::string &message);
-    void set_IV(std::vector<unsigned char> &IV_vals);
+    void set_IV(const std::vector<unsigned char> &IV_vals);
     void set_ciper_text(std::string ciper_text);
     void encrypt(std::string encrypt_mode);
     void encrypt_ecb();
@@ -31,8 +31,10 @@ public:
     void decrypt_cbc();
     void blockify(std::string secret, std::vector<KeyBlock *> &block_container);
     void show_encrypted_blocks();
+    std::string show_encrypted_message();
     void show_decrypted_blocks();
-    void show_decrypted_message();
+    std::string show_decrypted_message();
+    static bool is_ECB_encrypted(std::string hex_encrypted_string);
     ~AES128();
 };
 
