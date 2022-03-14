@@ -19,6 +19,7 @@ private:
 public:
     AES128(std::string key_);
     void set_secret_message(std::string secret_message);
+    void pad_pkcs(std::string &message);
     void set_ciper_text(std::string ciper_text);
     void encrypt();
     void decrypt();

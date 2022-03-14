@@ -11,7 +11,19 @@ AES128::AES128(std::string key_)
 
 void AES128::set_secret_message(std::string secret_message)
 {
+    // NEED TO ENSURE MESSAGE NOT EMPTY
+    pad_pkcs(secret_message);
     blockify(secret_message, encrypt_blocks);
+}
+
+void AES128::pad_pkcs(std::string &message)
+{
+    int pad_count = 16 - (message.size() % 16);
+    int pad_char = (pad_count == 0) ? 16 : pad_count;
+    for (; pad_count > 0; --pad_count)
+    {
+        message += pad_char;
+    }
 }
 
 void AES128::set_ciper_text(std::string ciper_text)
