@@ -8,6 +8,7 @@
 #include "Q6.h"
 #include "Q7.h"
 #include "Q8.h"
+#include "Q9.h"
 #include "Q10.h"
 #include "Q11.h"
 #include "Q12.h"
@@ -47,6 +48,9 @@ int main()
         case 8:
             Q8();
             break;
+        case 9:
+            Q9();
+            break;
         case 10:
             std::cout << "HE";
             Q10();
@@ -63,6 +67,7 @@ int main()
             break;
         default:
             std::cout << "Please select challenger 1 - 5 or Q to quit\n";
+            fflush(stdin);
         }
         std::cout << std::endl;
     } while (is_running);
