@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <algorithm>
+#include <unordered_map>
 
 #include "Q14.h"
 #include "utils.h"
@@ -15,7 +16,7 @@ std::string Q14_KEY = "YELLOW SUBMARINE";
 std::unique_ptr<AES128> Q14_crypto = std::make_unique<AES128>(Q14_KEY);
 std::string unknown_input = read_file_base64("./Q14_input.txt");
 
-std::string get_prefix()
+std::string get_random_prefix()
 {
     std::string prefix;
     int count = rand() % MAX_PREFIX_LENGTH + 1;
@@ -74,10 +75,42 @@ int find_prefix_length(const std::string &prefix)
 
 void Q14()
 {
-    std::string prefix = get_prefix();
+    std::string prefix = get_random_prefix();
 
     std::cout << "PREFIX LENGTH: " << prefix.size() << "\n";
     std::cout << "PREFIX: " << prefix << "\n";
 
-    std::cout << "DETECT PREFIX LENGTH: " << find_prefix_length(prefix);
+    int prefix_length = find_prefix_length(prefix);
+    std::cout << "DETECT PREFIX LENGTH: " << prefix_length << "\n";
+
+    // Padding required to make unknown char the last bit in block
+    // Example: prefix_length = 8
+    // Needs to pad BLOCK_SIZE - 1 - (prefix_length % BLOCK_SIZE)  
+    //                    = 16 - 1 - 8 = 7 extra letter to form 15 char + 1 unknown
+    int padding_needed = BLOCK_SIZE - 1 - (prefix_length % BLOCK_SIZE);
+    std::string CUSTOM_INPUT(padding_needed, 'A');
+
+    // BUILD DICTIONARY WITH EACH OF 256 CHARS
+    std::unordered_map<std::string, unsigned char> lookup;
+    for (int i = 0; i < 256; ++i)
+    {
+        std::string unknown;
+        unknown += i;
+
+        std::string encrypted = Q14_encrypt_aes128_ecb(prefix, CUSTOM_INPUT, unknown);
+        lookup[encrypted] = (unsigned char)i;
+    }
+
+    // Look up char using pre-built dictionary to form input
+    std::string input;
+    for (unsigned char ch : unknown_input)
+    {
+        std::string unknown;
+        unknown += (unsigned char)ch;
+
+        std::string encrypted = Q14_encrypt_aes128_ecb(prefix, CUSTOM_INPUT, unknown);
+        input += (unsigned char)lookup.at(encrypted);
+    }
+
+    std::cout << input << "\n";
 }
