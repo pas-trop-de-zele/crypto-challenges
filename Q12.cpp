@@ -24,8 +24,8 @@ void Q12()
     std::string unknown_input = read_file_base64("./Q12_input.txt");
     // std::string unknown_input = "THIS IS THE INPUT";
 
+    // Build dictionary with each of 256 ascii
     std::unordered_map<std::string, unsigned char> lookup;
-
     for (int i = 0; i < 256; ++i)
     {
         std::string unknown;
@@ -35,6 +35,7 @@ void Q12()
         lookup[encrypted] = (unsigned char)i;
     }
 
+    // Look up char using pre-built dictionary to form input
     std::string input;
     for (unsigned char ch : unknown_input)
     {
