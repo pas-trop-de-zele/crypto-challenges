@@ -13,6 +13,7 @@
 #include "Q11.h"
 #include "Q12.h"
 #include "Q13.h"
+#include "Q14.h"
 
 int main()
 {
@@ -64,6 +65,9 @@ int main()
             break;
         case 13:
             Q13();
+            break;
+        case 14:
+            Q14();
             break;
         case 'Q':
         case 'q':
