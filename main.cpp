@@ -55,7 +55,6 @@ int main()
             Q9();
             break;
         case 10:
-            std::cout << "HE";
             Q10();
             break;
         case 11:
