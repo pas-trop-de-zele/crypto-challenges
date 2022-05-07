@@ -31,12 +31,7 @@ void Q12()
         std::string unknown;
         unknown += i;
 
-        // Encrypted message would be show in hex format
-        // Last 2 chars would be the hex of the hex representation of last char
         std::string encrypted = Q12_encrypt_aes128_ecb(CUSTOM_INPUT, unknown);
-        std::stringstream buffer(encrypted.substr(30, 2));
-        unsigned char last_two_char;
-        buffer >> std::hex >> last_two_char;
         lookup[encrypted] = (unsigned char)i;
     }
 
